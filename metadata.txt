@@ -1,0 +1,64 @@
+# This file contains metadata for your plugin.
+# This file should be included when you package your plugin.
+
+# Mandatory items:
+
+[general]
+name=Advanced Photo Importer
+qgisMinimumVersion=3.28
+description=Import, manage and visualize geotagged photos with EXIF data in QGIS
+version=1.0.0
+author=Dr. Majid Jazebi
+email=majidjazebi@gmail.com
+folder=advanced_photo_importer
+
+about=Advanced Photo Importer is a powerful QGIS plugin that simplifies the integration
+    of geotagged photos into your GIS projects. It automatically extracts GPS coordinates,
+    direction, and timestamp from EXIF data, creates point layers, and provides intuitive
+    tools for managing, filtering, labeling, and visualizing your field photos on the map.
+
+    Key features:
+    - Import photos from file or folder (recursive) with automatic EXIF extraction
+    - Create point layers (in-memory or saved as GPKG/Shapefile)
+    - Customizable SVG camera markers with rotation based on photo direction
+    - Date/time range filtering independent of manual visibility control
+    - Label styling with font, color, size, and buffer controls
+    - Click-on-map tool to open photos
+    - Export/import photo metadata to/from Excel
+    - Group management for organizing photos
+
+    All required Python libraries (exifread, openpyxl) are bundled with the plugin.
+    No additional installation is needed — everything works out of the box.
+
+tracker=https://github.com/majidjazebi/advanced-photo-importer/issues
+repository=https://github.com/majidjazebi/advanced-photo-importer
+homepage=https://geotechzone.com/qgis/advanced-photo-importer
+
+# End of mandatory metadata
+
+# Recommended items:
+
+hasProcessingProvider=no
+changelog=
+    1.0.0 - Initial public release
+
+# Tags are comma separated with spaces allowed
+tags=photo, photos, geotagged, EXIF, GPS, import, images, field data, camera, geotag, jpg, jpeg, import photos qgis, QGIS geotagged photos, qgis add photo to point, qgis import geotagged photos, qgis import photos, qgis import photos plugin​, qgis photo​, 
+
+
+category=Vector
+icon=icon.png
+
+# experimental flag
+experimental=False
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+
+# Dependencies (comma-separated list of Python packages)
+# All dependencies are bundled inside the plugin (api_deps folder).
+# plugin_dependencies=
+
+# If the plugin can run on QGIS Server.
+server=False
+

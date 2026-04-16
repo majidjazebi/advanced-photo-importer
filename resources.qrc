@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/plugins/advanced_photo_importer">
+    <file>icon.png</file>
+    <file>icon_symbol.svg</file>
+</qresource>
+</RCC>

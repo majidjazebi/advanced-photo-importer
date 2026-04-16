@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Photo Importer — QGIS Plugin</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #24292e;
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 24px;
+            background: #ffffff;
+        }
+        h1 { font-size: 2em; border-bottom: 2px solid #e1e4e8; padding-bottom: 10px; margin-top: 0; }
+        h2 { font-size: 1.4em; border-bottom: 1px solid #e1e4e8; padding-bottom: 6px; margin-top: 32px; }
+        h3 { font-size: 1.1em; margin-top: 20px; }
+        a { color: #0366d6; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 85%;
+            background: #f6f8fa;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        pre {
+            background: #f6f8fa;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            padding: 14px;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+        pre code { background: none; padding: 0; }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 12px 0;
+        }
+        th, td {
+            border: 1px solid #dfe2e5;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        th { background: #f6f8fa; font-weight: 600; }
+        tr:nth-child(even) { background: #fafbfc; }
+        ul, ol { padding-left: 24px; }
+        li { margin: 4px 0; }
+        hr { border: none; border-top: 1px solid #e1e4e8; margin: 28px 0; }
+        .meta { background: #f6f8fa; border: 1px solid #e1e4e8; border-radius: 6px; padding: 14px 18px; margin-bottom: 20px; }
+        .meta p { margin: 4px 0; }
+    </style>
+</head>
+<body>
+
+<h1>Advanced Photo Importer</h1>
+
+<p>A powerful QGIS plugin for importing, managing, and visualizing geotagged photos with EXIF data.</p>
+
+<div class="meta">
+    <p><strong>Author:</strong> Dr. Majid Jazebi</p>
+    <p><strong>Website:</strong> <a href="https://geotechzone.com/qgis/advanced-photo-importer">geotechzone.com/qgis/advanced-photo-importer</a></p>
+    <p><strong>Repository:</strong> <a href="https://github.com/majidjazebi/advanced-photo-importer">github.com/majidjazebi/advanced-photo-importer</a></p>
+    <p><strong>License:</strong> GNU GPL v3</p>
+    <p><strong>QGIS Minimum Version:</strong> 3.28</p>
+</div>
+
+<hr>
+
+<h2>Overview</h2>
+
+<p>Advanced Photo Importer simplifies the integration of geotagged photos into your QGIS projects. It automatically extracts GPS coordinates, direction, and timestamp from EXIF metadata, creates point layers, and provides intuitive tools for managing, filtering, labeling, and visualizing field photos directly on the map.</p>
+
+<hr>
+
+<h2>Features</h2>
+
+<ul>
+    <li><strong>Import photos</strong> from a single file or an entire folder (with optional recursive subfolder search)</li>
+    <li><strong>Automatic EXIF extraction</strong> — GPS latitude/longitude, bearing/direction, and capture timestamp</li>
+    <li><strong>Point layer creation</strong> — in-memory or saved as GPKG or Shapefile</li>
+    <li><strong>Customizable SVG camera markers</strong> with automatic rotation based on photo direction</li>
+    <li><strong>Marker size control</strong> — scale from 10% to 500%</li>
+    <li><strong>Date/time range filtering</strong> — independent of manual visibility control</li>
+    <li><strong>Per-photo visibility toggle</strong> — show or hide individual photos</li>
+    <li><strong>Label styling</strong> — font, size, bold, color, buffer/outline and offset controls</li>
+    <li><strong>Click-on-map tool</strong> — click a point on the canvas to open the corresponding photo</li>
+    <li><strong>Photo Edit Dialog</strong> — edit coordinates, direction, and label for any photo</li>
+    <li><strong>Excel export/import</strong> — save and reload all photo metadata via <code>.xlsx</code> files</li>
+    <li><strong>Group management</strong> — organize photos into named groups</li>
+</ul>
+
+<hr>
+
+<h2>Installation</h2>
+
+<h3>From QGIS Plugin Repository (Recommended)</h3>
+<ol>
+    <li>Open QGIS</li>
+    <li>Go to <strong>Plugins → Manage and Install Plugins...</strong></li>
+    <li>Search for <strong>Advanced Photo Importer</strong></li>
+    <li>Click <strong>Install Plugin</strong></li>
+</ol>
+
+<h3>Manual Installation</h3>
+<ol>
+    <li>Download the latest release <code>.zip</code> from the <a href="https://github.com/majidjazebi/advanced-photo-importer/releases">GitHub Releases</a> page</li>
+    <li>In QGIS, go to <strong>Plugins → Manage and Install Plugins → Install from ZIP</strong></li>
+    <li>Select the downloaded <code>.zip</code> file and click <strong>Install Plugin</strong></li>
+</ol><p><strong>Note:</strong> If you downloaded the zip directly from GitHub, the extracted folder may be named <code>advanced-photo-importer-main</code>. QGIS requires the plugin folder to be named exactly <code>advanced_photo_importer</code>. Rename it before placing it in your QGIS plugins directory.</p>
+<hr>
+
+<h2>Dependencies</h2>
+
+<p>📦 <strong>No External Installation Required</strong></p>
+
+<p>This plugin ships with all necessary Python libraries bundled inside:</p>
+
+<table>
+    <thead>
+        <tr><th>Library</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>exifread</code></td><td>Read EXIF metadata from JPEG photos</td></tr>
+        <tr><td><code>openpyxl</code></td><td>Excel import/export functionality</td></tr>
+    </tbody>
+</table>
+
+<p>Everything works out of the box — no need to open a terminal, OSGeo4W Shell, or run <code>pip install</code>.</p>
+
+<blockquote>
+    <strong>Note:</strong> If a system-installed version of a library is already available,
+    the plugin will prefer it automatically. The bundled copy is only used as a fallback.
+</blockquote>
+
+<hr>
+
+<h2>Usage</h2>
+
+<h3>Basic Workflow</h3>
+<ol>
+    <li><strong>Open the plugin</strong> via the toolbar button or <strong>Plugins → Advanced Photo Importer</strong></li>
+    <li><strong>Upload tab</strong> — choose a save location for the layer, then browse to a photo file or folder</li>
+    <li>Click <strong>Upload Photos</strong> — the plugin extracts EXIF data and creates point markers on the map</li>
+    <li><strong>Imported Photos tab</strong> — view the list, toggle visibility, preview photos</li>
+    <li><strong>Filter tab</strong> — set a date/time range to show only photos within that period</li>
+    <li><strong>Settings tab</strong> — adjust marker size, icon style, direction display, and label appearance</li>
+    <li>Use the <strong>See Photo</strong> toolbar button to click directly on map points to open photos</li>
+</ol>
+
+<h3>Excel Workflow</h3>
+<ul>
+    <li>Click <strong>Export Package</strong> in the Upload tab to save all photo metadata to an Excel file</li>
+    <li>Edit the Excel file externally, then re-import using <strong>Import from Excel</strong></li>
+</ul>
+
+<hr>
+
+<h2>Supported Formats</h2>
+
+<ul>
+    <li><strong>Photo input:</strong> JPEG/JPG (must contain GPS EXIF data)</li>
+    <li><strong>Layer output:</strong> GeoPackage (<code>.gpkg</code>), Shapefile (<code>.shp</code>), or in-memory layer</li>
+    <li><strong>Export/Import:</strong> Excel (<code>.xlsx</code>)</li>
+</ul>
+
+<hr>
+
+<h2>Known Limitations</h2>
+
+<ul>
+    <li>Only JPEG photos with embedded GPS EXIF data are supported</li>
+    <li>Large batches of photos are processed on the main thread — for very large datasets (1000+) performance may vary</li>
+    <li><code>openpyxl</code> is required for Excel export/import features</li>
+</ul>
+
+<hr>
+
+<h2>License</h2>
+
+<p>This plugin is free software; you can redistribute it and/or modify it under the terms of the <strong>GNU General Public License version 3</strong> as published by the Free Software Foundation.</p>
+
+<p>See the <a href="LICENSE">LICENSE</a> file for the full license text.</p>
+
+<hr>
+
+<h2>Contact &amp; Support</h2>
+
+<ul>
+    <li><strong>Issues &amp; Bug Reports:</strong> <a href="https://github.com/majidjazebi/advanced-photo-importer/issues">GitHub Issues</a></li>
+    <li><strong>Website &amp; Documentation:</strong> <a href="https://geotechzone.com/qgis/advanced-photo-importer">geotechzone.com</a></li>
+    <li><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/majidjazebi/">linkedin.com/in/majidjazebi</a></li>
+</ul>
+
+<hr>
+
+<h2>&#x1F4DC; Credits / Icons</h2>
+
+<p>Full details regarding third-party assets and icon attributions can be found in the <a href="CREDITS.md">CREDITS.md</a> file.</p>
+
+</body>
+</html>
