@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="30.5mm"
+   height="24mm"
+   viewBox="0 0 30.5 24"
+   version="1.1"
+   id="svg1"
+   xml:space="preserve"
+   sodipodi:docname="Cam2.svg"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="3.0324635"
+     inkscape:cx="43.199201"
+     inkscape:cy="31.162782"
+     inkscape:window-width="1920"
+     inkscape:window-height="1111"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" /><defs
+     id="defs1"><linearGradient
+       id="swatch6"
+       inkscape:swatch="solid"><stop
+         style="stop-color:#161616;stop-opacity:1;"
+         offset="0"
+         id="stop7" /></linearGradient><clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath11"><path
+         style="fill:#000000;stroke-width:0.996873"
+         d="M 98.694741,185.43844 130.0755,153.709 112.64173,152.19808 v -13.59832 l -28.010239,-0.58114 0.116424,14.87682 -17.898633,0.11622 z"
+         id="path12" /></clipPath></defs><g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"><g
+       style="fill:#000000"
+       id="g1"
+       transform="matrix(0.06696429,0,0,0.06696441,-1.7479903,-4.1736518)"><g
+         id="camera-photo-heart-love-valentine">
+
+<path
+   d="M 440,128 H 348.762 L 325.465,85.047 C 318.574,72.063 305.109,64 290.32,64 h -68.64 c -14.789,0 -28.254,8.063 -35.109,20.984 L 163.238,128 H 136 v -8 c 0,-8.837 -7.163,-16 -16,-16 H 88 c -8.836,0 -16,7.163 -16,16 v 8 c -22.055,0 -40,17.945 -40,40 v 176 c 0,22.055 17.945,40 40,40 h 99.62 c 22.556,19.851 52.043,32 84.38,32 32.337,0 61.824,-12.149 84.38,-32 H 440 c 22.055,0 40,-17.945 40,-40 V 168 c 0,-22.055 -17.945,-40 -40,-40 z m 0,48 v 16 c 0,4.418 -3.582,8 -8,8 h -40 c -4.418,0 -8,-3.582 -8,-8 v -16 c 0,-4.418 3.582,-8 8,-8 h 40 c 4.418,0 8,3.582 8,8 z m -219.055,-48 5.789,-11.578 c 1.363,-2.727 4.105,-4.422 7.156,-4.422 h 44.219 c 3.051,0 5.793,1.695 7.156,4.422 l 5.79,11.578 z m -138.2,104 c 8.487,0 16.626,3.371 22.627,9.373 l 24.652,24.652 C 128.779,273.18 128,280.494 128,288 c 0,13.976 2.331,27.399 6.49,40 H 48 v -96 z m 294.765,96 c 4.16,-12.601 6.49,-26.024 6.49,-40 0,-7.506 -0.779,-14.82 -2.025,-21.975 l 24.652,-24.652 C 412.628,235.372 420.768,232 429.254,232 H 464 v 96 z M 144,288 c 0,-61.758 50.242,-112 112,-112 61.758,0 112,50.242 112,112 0,61.758 -50.242,112 -112,112 -61.758,0 -112,-50.242 -112,-112 z m 112,-88 c -48.56,0 -88,39.44 -88,88 0,48.56 39.44,88 88,88 48.56,0 88,-39.44 88,-88 0,-48.56 -39.44,-88 -88,-88 z m 45.76,105.6 -32.48,32.88 c -7.36,7.36 -19.2,7.36 -26.56,0 L 210.24,305.6 c -11.84,-12 -13.92,-31.2 -3.6,-44.64 12.4,-16.16 35.52,-17.2 49.36,-3.2 13.84,-14 36.96,-12.96 49.36,3.2 10.32,13.44 8.24,32.64 -3.6,44.64 z"
+   id="path1" />
+
+</g><g
+         id="Layer_1" /></g></g></svg>
