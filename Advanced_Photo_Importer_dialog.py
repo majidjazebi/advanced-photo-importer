@@ -32,6 +32,7 @@ from qgis.PyQt.QtWidgets import (
 )
 
 from .dependency_manager import DependencyManager
+from .qt_compat import AlignCenter, Horizontal, HLine, Sunken, StyledPanel, Bold
 
 
 class AdvancedPhotoImporterDialog(QDialog):
@@ -247,9 +248,9 @@ class AdvancedPhotoImporterDialog(QDialog):
         self.label_coordinate = QLabel(
             self.tr("\u26a0\u2002\u2191\u2002 Step 1 required \u2014 choose a save location before selecting photos.")
         )
-        self.label_coordinate.setFont(QFont("Sans Serif", 9, QFont.Bold))
+        self.label_coordinate.setFont(QFont("Sans Serif", 9, Bold))
         self.label_coordinate.setWordWrap(True)
-        self.label_coordinate.setAlignment(Qt.AlignCenter)
+        self.label_coordinate.setAlignment(AlignCenter)
         self.label_coordinate.setStyleSheet(
             "color: #c0392b;"
             "background-color: #fdf0ef;"
@@ -314,10 +315,10 @@ class AdvancedPhotoImporterDialog(QDialog):
         # divider line + label
         alt_header_layout = QHBoxLayout()
         alt_header_layout.setSpacing(8)
-        line_l = QFrame(); line_l.setFrameShape(QFrame.HLine); line_l.setFrameShadow(QFrame.Sunken)
+        line_l = QFrame(); line_l.setFrameShape(HLine); line_l.setFrameShadow(Sunken)
         line_l.setStyleSheet("background-color: #a0b8cc; max-height: 1px;")
         alt_title = QLabel(self.tr("\u2014\u2002Or alternatively: Import / Export to Excel or CSV files\u2002\u2014"))
-        alt_title.setAlignment(Qt.AlignCenter)
+        alt_title.setAlignment(AlignCenter)
         alt_title.setStyleSheet(
             "color: #3a6080;"
             "font-style: italic;"
@@ -326,7 +327,7 @@ class AdvancedPhotoImporterDialog(QDialog):
             "background: transparent;"
             "border: none;"
         )
-        line_r = QFrame(); line_r.setFrameShape(QFrame.HLine); line_r.setFrameShadow(QFrame.Sunken)
+        line_r = QFrame(); line_r.setFrameShape(HLine); line_r.setFrameShadow(Sunken)
         line_r.setStyleSheet("background-color: #a0b8cc; max-height: 1px;")
         alt_header_layout.addWidget(line_l, 1)
         alt_header_layout.addWidget(alt_title, 0)
@@ -479,7 +480,7 @@ class AdvancedPhotoImporterDialog(QDialog):
         
         # Font Opacity
         label_styling_layout.addWidget(QLabel(self.tr("Font Opacity:")), 2, 0)
-        self.slider_font_opacity = QSlider(Qt.Horizontal)
+        self.slider_font_opacity = QSlider(Horizontal)
         self.slider_font_opacity.setRange(0, 100)
         self.slider_font_opacity.setValue(100)  # Default: fully opaque
         self.slider_font_opacity.setToolTip(self.tr("Font opacity (0-100%)"))
@@ -506,7 +507,7 @@ class AdvancedPhotoImporterDialog(QDialog):
         
         # Buffer Opacity
         label_styling_layout.addWidget(QLabel(self.tr("Buffer Opacity:")), 5, 0)
-        self.slider_buffer_opacity = QSlider(Qt.Horizontal)
+        self.slider_buffer_opacity = QSlider(Horizontal)
         self.slider_buffer_opacity.setRange(0, 100)
         self.slider_buffer_opacity.setValue(100)  # Default: fully opaque
         self.slider_buffer_opacity.setToolTip(self.tr("Buffer opacity (0-100%)"))
@@ -668,7 +669,7 @@ class AdvancedPhotoImporterDialog(QDialog):
         
         # Add a placeholder label until the layer is loaded
         placeholder_label = QLabel(self.tr("Imported photos list will appear here after import."))
-        placeholder_label.setAlignment(Qt.AlignCenter)
+        placeholder_label.setAlignment(AlignCenter)
         layout.addWidget(placeholder_label)
         
         return tab
@@ -686,7 +687,7 @@ class AdvancedPhotoImporterDialog(QDialog):
         title_font.setPointSize(18)
         title_font.setBold(True)
         title_label.setFont(title_font)
-        title_label.setAlignment(Qt.AlignCenter)
+        title_label.setAlignment(AlignCenter)
         title_label.setStyleSheet("color: #1a1a1a; padding: 3px;")
         layout.addWidget(title_label)
         
@@ -696,7 +697,7 @@ class AdvancedPhotoImporterDialog(QDialog):
         subtitle_font.setPointSize(13)
         subtitle_font.setItalic(True)
         subtitle_label.setFont(subtitle_font)
-        subtitle_label.setAlignment(Qt.AlignCenter)
+        subtitle_label.setAlignment(AlignCenter)
         subtitle_label.setStyleSheet("color: #4a4a4a; padding-bottom: 5px;")
         layout.addWidget(subtitle_label)
         
@@ -801,7 +802,7 @@ class AdvancedPhotoImporterDialog(QDialog):
         layout.addWidget(dep_title)
         
         self.dep_frame = QFrame()
-        self.dep_frame.setFrameShape(QFrame.StyledPanel)
+        self.dep_frame.setFrameShape(StyledPanel)
         dep_layout = QVBoxLayout(self.dep_frame)
         dep_layout.setContentsMargins(10, 8, 10, 8)
 
@@ -833,8 +834,8 @@ class AdvancedPhotoImporterDialog(QDialog):
         """Creates a horizontal separator line."""
         from qgis.PyQt.QtWidgets import QFrame
         line = QFrame()
-        line.setFrameShape(QFrame.HLine)
-        line.setFrameShadow(QFrame.Sunken)
+        line.setFrameShape(HLine)
+        line.setFrameShadow(Sunken)
         line.setStyleSheet("color: #cccccc; margin: 2px 0px;")
         return line
         """Creates the 'Settings' tab content."""
@@ -896,7 +897,7 @@ class AdvancedPhotoImporterDialog(QDialog):
         
         # Font Opacity
         label_styling_layout.addWidget(QLabel(self.tr("Font Opacity:")), 3, 0)
-        self.slider_font_opacity = QSlider(Qt.Horizontal)
+        self.slider_font_opacity = QSlider(Horizontal)
         self.slider_font_opacity.setRange(0, 100)
         self.slider_font_opacity.setValue(100)  # Default: 100%
         self.label_font_opacity = QLabel("100%")
@@ -928,7 +929,7 @@ class AdvancedPhotoImporterDialog(QDialog):
         
         # Buffer Opacity
         label_styling_layout.addWidget(QLabel(self.tr("Buffer Opacity:")), 6, 0)
-        self.slider_buffer_opacity = QSlider(Qt.Horizontal)
+        self.slider_buffer_opacity = QSlider(Horizontal)
         self.slider_buffer_opacity.setRange(0, 100)
         self.slider_buffer_opacity.setValue(100)  # Default: 100%
         self.label_buffer_opacity = QLabel("100%")

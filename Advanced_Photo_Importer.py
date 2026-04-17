@@ -58,6 +58,7 @@ from .Photo_Edit_Dialog import PhotoEditDialog
 # Import modular components
 from .photo_list_widgets import PhotoListManager
 from .map_tools import OpenPhotoMapTool
+from .qt_compat import DocumentsLocation
 from .symbol_renderer import SymbolRenderer
 from .exif_handler import ExifHandler
 from .layer_manager import LayerManager
@@ -736,7 +737,7 @@ class AdvancedPhotoImporter:
                 QgsMessageLog.logMessage("[RUN] Settings synced from layer to dialog", 'Photo Plugin', Qgis.Info)
 
         self.dlg.show()
-        self.dlg.exec_()
+        self.dlg.exec()
 
     def handle_tab_change(self, index):
          """Handles tab changes in the main dialog."""
@@ -911,7 +912,7 @@ class AdvancedPhotoImporter:
         else:
             # No project saved - use user's Documents folder
             from qgis.PyQt.QtCore import QStandardPaths
-            docs_dir = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
+            docs_dir = QStandardPaths.writableLocation(DocumentsLocation)
             save_path = os.path.join(docs_dir, "QGIS_Photos", "photo_locations.gpkg")
             
             # Create directory if it doesn't exist
@@ -943,7 +944,7 @@ class AdvancedPhotoImporter:
             return os.path.join(project_dir, "photo_locations.gpkg")
         else:
             from qgis.PyQt.QtCore import QStandardPaths
-            docs_dir = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
+            docs_dir = QStandardPaths.writableLocation(DocumentsLocation)
             return os.path.join(docs_dir, "QGIS_Photos", "photo_locations.gpkg")
 
     def create_point_layer(self, output_uri=None):
@@ -1490,6 +1491,9 @@ class AdvancedPhotoImporter:
         )
         
         if success:
+            # Rebuild renderer so hidden photos disappear immediately
+            self.symbol_renderer.update_layer_symbol_manually(self.photo_layer, self.iface)
+            
             # Update status label
             if hasattr(self.dlg, 'label_filter_status'):
                 self.dlg.label_filter_status.setText(
@@ -1518,6 +1522,11 @@ class AdvancedPhotoImporter:
         success = self.date_time_filter.remove_filter(self.photo_layer)
         
         if success:
+            # Rebuild and re-apply the rule-based renderer so the canvas reflects
+            # the restored svg_icon values immediately (same operation that the
+            # "Imported Photos" tab triggers via updateRendererRequested).
+            self.symbol_renderer.update_layer_symbol_manually(self.photo_layer, self.iface)
+            
             # Update status label
             if hasattr(self.dlg, 'label_filter_status'):
                 self.dlg.label_filter_status.setText("Status: No filter applied")

@@ -13,6 +13,7 @@ import os
 import platform
 from qgis.PyQt.QtCore import Qt, pyqtSignal, QProcess, QTimer
 from qgis.PyQt.QtGui import QPixmap
+from .qt_compat import AlignCenter, Checked, LeftButton, KeepAspectRatio, SmoothTransformation, CustomContextMenu
 from qgis.PyQt.QtWidgets import (
     QWidget,
     QHBoxLayout,
@@ -89,13 +90,13 @@ class PhotoListItemWidget(QWidget):
     def _on_visibility_change(self, state):
         """Emits signal when checkbox state changes."""
         from qgis.core import QgsMessageLog, Qgis
-        is_visible = state == Qt.Checked
-        QgsMessageLog.logMessage(f"[VIS DEBUG] Checkbox changed for feature {self.feature_id}: checked={state == Qt.Checked}, is_visible={is_visible}", 'Photo Plugin', Qgis.Info)
+        is_visible = state == Checked
+        QgsMessageLog.logMessage(f"[VIS DEBUG] Checkbox changed for feature {self.feature_id}: checked={state == Checked}, is_visible={is_visible}", 'Photo Plugin', Qgis.Info)
         self.visibilityToggled.emit(self.feature_id, is_visible)
 
     def mousePressEvent(self, event):
         """Emits signal when the widget is clicked (for displaying on the right)."""
-        if event.button() == Qt.LeftButton:
+        if event.button() == LeftButton:
             self.itemClicked.emit(self.photo_path)
         super().mousePressEvent(event)
 
@@ -129,7 +130,7 @@ class PhotoListManager(QWidget):
         self._pending_refresh = False
 
         self.image_preview = QLabel("Select a photo to see a preview.")
-        self.image_preview.setAlignment(Qt.AlignCenter)
+        self.image_preview.setAlignment(AlignCenter)
         self.image_preview.setScaledContents(True)
         self.image_preview.setMinimumSize(250, 150) 
         
@@ -186,7 +187,7 @@ class PhotoListManager(QWidget):
         main_layout.addWidget(self.list_widget, 2) 
         main_layout.addLayout(right_side_layout, 1) 
         
-        self.list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.list_widget.setContextMenuPolicy(CustomContextMenu)
 
         self.setLayer(photo_layer)
 
@@ -320,8 +321,8 @@ class PhotoListManager(QWidget):
             # Scale the pixmap down to fit the preview area while maintaining aspect ratio
             scaled_pixmap = pixmap.scaled(
                 self.image_preview.size(), 
-                Qt.KeepAspectRatio, 
-                Qt.SmoothTransformation
+                KeepAspectRatio, 
+                SmoothTransformation
             )
             self.image_preview.setPixmap(scaled_pixmap)
             

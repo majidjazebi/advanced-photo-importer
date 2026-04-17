@@ -19,6 +19,7 @@ from qgis.PyQt.QtWidgets import (
 from qgis.PyQt.QtGui import QPixmap, QImage, QDesktopServices 
 from qgis.PyQt.QtCore import Qt, pyqtSignal, QUrl, QCoreApplication
 import os
+from .qt_compat import AlignCenter, KeepAspectRatio, SmoothTransformation, Checked, ButtonOk, ButtonCancel
 
 class PhotoEditDialog(QDialog):
 
@@ -38,7 +39,7 @@ class PhotoEditDialog(QDialog):
         # --- UI ELEMENTS ---
         
         self.photo_label = QLabel(self.tr("Photo Preview"))
-        self.photo_label.setAlignment(Qt.AlignCenter)
+        self.photo_label.setAlignment(AlignCenter)
         self.photo_label.setFixedSize(300, 200) # Fixed size for preview
         self.photo_label.setStyleSheet("border: 1px solid gray;")
         
@@ -63,10 +64,10 @@ class PhotoEditDialog(QDialog):
         self.btn_open_original.clicked.connect(self.open_original_photo)
         
         # Button Box (OK/Cancel)
-        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.buttonBox = QDialogButtonBox(ButtonOk | ButtonCancel)
         
         # Rename the 'Ok' button to 'Update' for clarity in this context
-        self.update_button = self.buttonBox.button(QDialogButtonBox.Ok)
+        self.update_button = self.buttonBox.button(ButtonOk)
         self.update_button.setText(self.tr("Update"))
         
         # Connect signals
@@ -125,8 +126,8 @@ class PhotoEditDialog(QDialog):
                 if not pixmap.isNull():
                     # Scale the pixmap to fit the label size while maintaining aspect ratio
                     scaled_pixmap = pixmap.scaled(self.photo_label.size(), 
-                                                  Qt.KeepAspectRatio, 
-                                                  Qt.SmoothTransformation)
+                                                  KeepAspectRatio, 
+                                                  SmoothTransformation)
                     self.photo_label.setPixmap(scaled_pixmap)
                     self.photo_label.setText("") # Clear "Photo Preview" text
                 else:
@@ -189,7 +190,7 @@ class PhotoEditDialog(QDialog):
     def _on_visibility_changed(self, state):
         """Handle visibility checkbox state changes."""
         if self.current_feat_id != -1:
-            is_visible = state == Qt.Checked
+            is_visible = state == Checked
             self.visibility_changed.emit(self.current_feat_id, is_visible)
     
     def update_visibility_checkbox(self, feat_id, is_visible):

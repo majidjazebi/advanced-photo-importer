@@ -26,6 +26,7 @@ if EXCEL_AVAILABLE:
 
 from qgis.PyQt.QtWidgets import QMessageBox, QFileDialog, QWidget, QApplication
 from qgis.core import Qgis, QgsProject, QgsMessageLog, QgsCoordinateTransform, QgsCoordinateReferenceSystem
+from .qt_compat import MsgYes, MsgNo, DesktopLocation
 
 
 
@@ -44,7 +45,7 @@ class ExcelManager:
         if not project_dir:
             # If no project is saved, use the desktop
             from qgis.PyQt.QtCore import QStandardPaths
-            project_dir = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
+            project_dir = QStandardPaths.writableLocation(DesktopLocation)
 
         return os.path.join(project_dir, "photo_management.xlsx")
 
@@ -572,11 +573,11 @@ class ExcelManager:
                 self.iface.mainWindow(),
                 "Import Confirmation",
                 f"⚠️ WARNING: Importing will remove all current progress and create a new layer with {len(photos_data)} photos from the Excel file.\n\nAll existing imported photos will be lost.\n\nDo you want to continue?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No
+                MsgYes | MsgNo,
+                MsgNo
             )
 
-            if reply != QMessageBox.Yes:
+            if reply != MsgYes:
                 return
 
             # Extract unique groups from imported data and reset group manager

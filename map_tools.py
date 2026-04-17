@@ -12,6 +12,7 @@ Handles the map tool for clicking on photos and displaying their metadata.
 import os
 from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.PyQt.QtCore import Qt
+from .qt_compat import CrossCursor
 from qgis.core import (
     QgsCoordinateTransform,
     QgsCoordinateReferenceSystem,
@@ -32,7 +33,7 @@ class OpenPhotoMapTool(QgsMapTool):
         QgsMapTool.__init__(self, canvas)
         self.canvas = canvas
         self.plugin = plugin_instance
-        self.cursor = Qt.CrossCursor 
+        self.cursor = CrossCursor 
     
     def canvasReleaseEvent(self, mouseEvent):
         """Handle map clicks to find the nearest photo feature."""

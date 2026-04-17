@@ -19,6 +19,23 @@ from qgis.core import (
 )
 from qgis.PyQt.QtGui import QColor, QFont
 
+# ── Qt / QGIS version compatibility shims ────────────────────────────────────
+# Qgis.RenderUnit  was introduced in QGIS 3.30+; QGIS 3.28 uses QgsUnitTypes
+try:
+    _RENDER_POINTS = Qgis.RenderUnit.Points
+    _RENDER_MM     = Qgis.RenderUnit.Millimeters
+except AttributeError:
+    from qgis.core import QgsUnitTypes
+    _RENDER_POINTS = QgsUnitTypes.RenderPoints
+    _RENDER_MM     = QgsUnitTypes.RenderMillimeters
+
+# Qgis.LabelPlacement  was promoted to Qgis namespace in QGIS 3.30+
+try:
+    _LABEL_PLACEMENT = Qgis.LabelPlacement.OrderedPositionsAroundPoint
+except AttributeError:
+    _LABEL_PLACEMENT = QgsPalLayerSettings.OrderedPositionsAroundPoint
+# ─────────────────────────────────────────────────────────────────────────────
+
 
 class LabelManager:
     """Manages photo layer labeling configuration and styling."""
@@ -74,7 +91,7 @@ class LabelManager:
         font.setBold(self.font_bold)
         text_format.setFont(font)
         text_format.setSize(self.font_size)
-        text_format.setSizeUnit(Qgis.RenderUnit.Points)
+        text_format.setSizeUnit(_RENDER_POINTS)
         
         # Set font color and opacity
         text_format.setColor(self.font_color)
@@ -84,7 +101,7 @@ class LabelManager:
         buffer_settings = QgsTextBufferSettings()
         buffer_settings.setEnabled(True)
         buffer_settings.setSize(self.buffer_size)
-        buffer_settings.setSizeUnit(Qgis.RenderUnit.Millimeters)
+        buffer_settings.setSizeUnit(_RENDER_MM)
         buffer_settings.setColor(self.buffer_color)
         buffer_settings.setOpacity(self.buffer_color.alphaF())
         
@@ -95,11 +112,11 @@ class LabelManager:
         label_settings.setFormat(text_format)
         
         # Set label placement
-        label_settings.placement = Qgis.LabelPlacement.OrderedPositionsAroundPoint
+        label_settings.placement = _LABEL_PLACEMENT
         
         # Set label distance from symbol (padding)
         label_settings.dist = self.label_distance
-        label_settings.distUnits = Qgis.RenderUnit.Millimeters
+        label_settings.distUnits = _RENDER_MM
         
         # Disable obstacle detection and allow overlaps to show all labels
         label_settings.obstacleSettings().setIsObstacle(False)
@@ -107,8 +124,10 @@ class LabelManager:
         # Allow labels to overlap with other labels and features
         # This ensures all labels are shown even if they overlap
         if hasattr(label_settings, 'setOverlapHandling'):
-            # QGIS 3.26+
-            label_settings.setOverlapHandling(Qgis.LabelOverlapHandling.AllowOverlapIfRequired)
+            try:
+                label_settings.setOverlapHandling(Qgis.LabelOverlapHandling.AllowOverlapIfRequired)
+            except AttributeError:
+                pass  # Qgis.LabelOverlapHandling not available in this QGIS version
         
         # Enable labels
         label_settings.enabled = True

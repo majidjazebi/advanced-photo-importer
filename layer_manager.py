@@ -12,7 +12,18 @@ Handles creation, management, and manipulation of photo layers and features.
 import os
 import warnings
 from qgis.PyQt.QtWidgets import QMessageBox
-from qgis.PyQt.QtCore import QVariant
+
+# Qt 5 (QGIS 3) uses QVariant type enums; Qt 6 (QGIS 4) uses QMetaType.Type
+try:
+    from qgis.PyQt.QtCore import QVariant
+    _QT_STRING = QVariant.String
+    _QT_DOUBLE = QVariant.Double
+    _QT_BOOL   = QVariant.Bool
+except (ImportError, AttributeError):
+    from qgis.PyQt.QtCore import QMetaType
+    _QT_STRING = QMetaType.Type.QString
+    _QT_DOUBLE = QMetaType.Type.Double
+    _QT_BOOL   = QMetaType.Type.Bool
 from qgis.core import (
     QgsVectorLayer,
     QgsField,
@@ -114,20 +125,20 @@ class LayerManager:
                 fields = QgsFields()
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore", DeprecationWarning)
-                    fields.append(QgsField('path', QVariant.String, 'string', 255))
-                    fields.append(QgsField('latitude', QVariant.Double, 'double', 20, 6))
-                    fields.append(QgsField('longitude', QVariant.Double, 'double', 20, 6))
-                    fields.append(QgsField('direction', QVariant.Double, 'double', 20, 2))
-                    fields.append(QgsField('svg_icon', QVariant.String, '', 20))
-                    fields.append(QgsField('svg_icon_backup', QVariant.String, '', 50))
-                    fields.append(QgsField('visible', QVariant.Bool, 'boolean'))
-                    fields.append(QgsField('group', QVariant.String, 'string', 100))
-                    fields.append(QgsField('label_text', QVariant.String, 'string', 255))
-                    fields.append(QgsField('label_visible', QVariant.Bool, 'boolean'))
-                    fields.append(QgsField('label_offset_x', QVariant.Double, 'double', 20, 2))
-                    fields.append(QgsField('label_offset_y', QVariant.Double, 'double', 20, 2))
-                    fields.append(QgsField('photo_time', QVariant.String, 'string', 100))
-                    fields.append(QgsField('filterVisibility', QVariant.Bool, 'boolean'))
+                    fields.append(QgsField('path', _QT_STRING, 'string', 255))
+                    fields.append(QgsField('latitude', _QT_DOUBLE, 'double', 20, 6))
+                    fields.append(QgsField('longitude', _QT_DOUBLE, 'double', 20, 6))
+                    fields.append(QgsField('direction', _QT_DOUBLE, 'double', 20, 2))
+                    fields.append(QgsField('svg_icon', _QT_STRING, '', 20))
+                    fields.append(QgsField('svg_icon_backup', _QT_STRING, '', 50))
+                    fields.append(QgsField('visible', _QT_BOOL, 'boolean'))
+                    fields.append(QgsField('group', _QT_STRING, 'string', 100))
+                    fields.append(QgsField('label_text', _QT_STRING, 'string', 255))
+                    fields.append(QgsField('label_visible', _QT_BOOL, 'boolean'))
+                    fields.append(QgsField('label_offset_x', _QT_DOUBLE, 'double', 20, 2))
+                    fields.append(QgsField('label_offset_y', _QT_DOUBLE, 'double', 20, 2))
+                    fields.append(QgsField('photo_time', _QT_STRING, 'string', 100))
+                    fields.append(QgsField('filterVisibility', _QT_BOOL, 'boolean'))
                 
                 # Write the layer to file
                 from qgis.core import QgsVectorFileWriter
@@ -169,20 +180,20 @@ class LayerManager:
             
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", DeprecationWarning)
-                fields.append(QgsField('path', QVariant.String, 'string', 255))
-                fields.append(QgsField('latitude', QVariant.Double, 'double', 20, 6))
-                fields.append(QgsField('longitude', QVariant.Double, 'double', 20, 6))
-                fields.append(QgsField('direction', QVariant.Double, 'double', 20, 2))
-                fields.append(QgsField('svg_icon', QVariant.String, '', 20))
-                fields.append(QgsField('svg_icon_backup', QVariant.String, '', 50))
-                fields.append(QgsField('visible', QVariant.Bool, 'boolean'))
-                fields.append(QgsField('group', QVariant.String, 'string', 100))
-                fields.append(QgsField('label_text', QVariant.String, 'string', 255))
-                fields.append(QgsField('label_visible', QVariant.Bool, 'boolean'))
-                fields.append(QgsField('label_offset_x', QVariant.Double, 'double', 20, 2))
-                fields.append(QgsField('label_offset_y', QVariant.Double, 'double', 20, 2))
-                fields.append(QgsField('photo_time', QVariant.String, 'string', 100))  # Photo capture time
-                fields.append(QgsField('filterVisibility', QVariant.Bool, 'boolean'))  # Date/time filter visibility (separate from manual visibility)
+                fields.append(QgsField('path', _QT_STRING, 'string', 255))
+                fields.append(QgsField('latitude', _QT_DOUBLE, 'double', 20, 6))
+                fields.append(QgsField('longitude', _QT_DOUBLE, 'double', 20, 6))
+                fields.append(QgsField('direction', _QT_DOUBLE, 'double', 20, 2))
+                fields.append(QgsField('svg_icon', _QT_STRING, '', 20))
+                fields.append(QgsField('svg_icon_backup', _QT_STRING, '', 50))
+                fields.append(QgsField('visible', _QT_BOOL, 'boolean'))
+                fields.append(QgsField('group', _QT_STRING, 'string', 100))
+                fields.append(QgsField('label_text', _QT_STRING, 'string', 255))
+                fields.append(QgsField('label_visible', _QT_BOOL, 'boolean'))
+                fields.append(QgsField('label_offset_x', _QT_DOUBLE, 'double', 20, 2))
+                fields.append(QgsField('label_offset_y', _QT_DOUBLE, 'double', 20, 2))
+                fields.append(QgsField('photo_time', _QT_STRING, 'string', 100))  # Photo capture time
+                fields.append(QgsField('filterVisibility', _QT_BOOL, 'boolean'))  # Date/time filter visibility (separate from manual visibility)
 
             uri = "Point?crs=epsg:4326&field=path:string(255)&field=latitude:double&field=longitude:double&field=direction:double&field=svg_icon:string(20)&field=svg_icon_backup:string(50)&field=visible:boolean&field=group:string(100)&field=label_text:string(255)&field=label_visible:boolean&field=label_offset_x:double&field=label_offset_y:double&field=photo_time:string(100)&field=filterVisibility:boolean" 
             layer = QgsVectorLayer(uri, layer_name, 'memory')

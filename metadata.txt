@@ -6,6 +6,7 @@
 [general]
 name=Advanced Photo Importer
 qgisMinimumVersion=3.28
+qgisMaximumVersion=4.99
 description=Import, manage and visualize geotagged photos with EXIF data in QGIS
 version=1.0.0
 author=Dr. Majid Jazebi
@@ -40,7 +41,7 @@ homepage=https://geotechzone.com/qgis/advanced-photo-importer
 
 hasProcessingProvider=no
 changelog=
-    1.0.0 - Initial public release
+    1.0.0 - Initial public release (QGIS 3.28+ and QGIS 4 compatible)
 
 # Tags are comma separated with spaces allowed
 tags=photo, photos, geotagged, EXIF, GPS, import, images, field data, camera, geotag, jpg, jpeg, import photos qgis, QGIS geotagged photos, qgis add photo to point, qgis import geotagged photos, qgis import photos, qgis import photos plugin​, qgis photo​, 

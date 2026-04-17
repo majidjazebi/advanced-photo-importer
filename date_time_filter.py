@@ -129,93 +129,73 @@ class DateTimeFilter(QObject):
             )
             return False
         
-        # Start editing
-        if not photo_layer.isEditable():
-            photo_layer.startEditing()
+        # Ensure not in editing mode (we use direct provider batch write)
+        if photo_layer.isEditable():
+            photo_layer.rollBack()
         
         filtered_count = 0
         visible_count = 0
         no_time_count = 0
+        backup_idx = photo_layer.fields().indexOf('svg_icon_backup')
         
-        # Process each feature
+        # --- Collect all changes in memory first (no layer writes yet) ---
+        attr_changes = {}  # {fid: {field_idx: value, ...}}
+        
         for feature in photo_layer.getFeatures():
             photo_time_str = feature['photo_time']
             fid = feature.id()
             current_icon = feature['svg_icon']
             manual_visible = feature['visible'] if visible_idx >= 0 else True
+            changes = {}
             
             if not photo_time_str:
-                # No timestamp - hide by default when filter is active
-                photo_layer.changeAttributeValue(fid, filter_visibility_idx, False)
-                
-                # Change icon to Invisible.svg (only if manual visibility allows)
+                changes[filter_visibility_idx] = False
                 if current_icon != 'Invisible.svg':
                     self.original_icons[fid] = current_icon
-                    photo_layer.changeAttributeValue(fid, svg_icon_idx, 'Invisible.svg')
-                
+                    changes[svg_icon_idx] = 'Invisible.svg'
                 no_time_count += 1
                 filtered_count += 1
+                attr_changes[fid] = changes
                 continue
             
-            # Parse photo timestamp
             try:
                 photo_datetime = self._parse_photo_time(photo_time_str)
                 
-                # Check if photo is within date range
                 if start_datetime <= photo_datetime <= end_datetime:
-                    # Photo is within range - set filterVisibility = True
-                    photo_layer.changeAttributeValue(fid, filter_visibility_idx, True)
-                    
-                    # Restore original icon ONLY if manual visibility is also True
+                    changes[filter_visibility_idx] = True
                     if manual_visible:
                         if fid in self.original_icons:
-                            original_icon = self.original_icons[fid]
-                            photo_layer.changeAttributeValue(fid, svg_icon_idx, original_icon)
-                            del self.original_icons[fid]
+                            changes[svg_icon_idx] = self.original_icons.pop(fid)
                         elif current_icon == 'Invisible.svg':
-                            # Use svg_icon_backup to restore the correct icon
-                            backup_idx = photo_layer.fields().indexOf('svg_icon_backup')
                             restored = None
                             if backup_idx >= 0:
                                 backup_val = feature.attribute('svg_icon_backup')
                                 if backup_val and backup_val != 'Invisible.svg':
                                     restored = backup_val
-                            photo_layer.changeAttributeValue(fid, svg_icon_idx, restored if restored else '0.svg')
-                    
+                            changes[svg_icon_idx] = restored if restored else '0.svg'
                     visible_count += 1
                 else:
-                    # Photo is outside range - set filterVisibility = False
-                    photo_layer.changeAttributeValue(fid, filter_visibility_idx, False)
-                    
-                    # Change icon to Invisible.svg
+                    changes[filter_visibility_idx] = False
                     if current_icon != 'Invisible.svg':
                         self.original_icons[fid] = current_icon
-                        photo_layer.changeAttributeValue(fid, svg_icon_idx, 'Invisible.svg')
-                    
+                        changes[svg_icon_idx] = 'Invisible.svg'
                     filtered_count += 1
                     
-            except ValueError as e:
-                # Invalid timestamp format - hide by default
+            except ValueError:
                 QgsMessageLog.logMessage(
                     f"[DATE FILTER] Invalid timestamp format for feature {fid}: {photo_time_str}",
-                    'Photo Plugin',
-                    Qgis.Warning
+                    'Photo Plugin', Qgis.Warning
                 )
-                photo_layer.changeAttributeValue(fid, filter_visibility_idx, False)
-                
-                # Change icon to Invisible.svg
+                changes[filter_visibility_idx] = False
                 if current_icon != 'Invisible.svg':
                     self.original_icons[fid] = current_icon
-                    photo_layer.changeAttributeValue(fid, svg_icon_idx, 'Invisible.svg')
-                
+                    changes[svg_icon_idx] = 'Invisible.svg'
                 filtered_count += 1
+            
+            attr_changes[fid] = changes
         
-        # Commit changes
-        photo_layer.commitChanges()
-        
-        # Single refresh
-        photo_layer.triggerRepaint()
-        self.iface.mapCanvas().refresh()
+        # Batch-write all attribute changes to provider in one operation
+        photo_layer.dataProvider().changeAttributeValues(attr_changes)
         
         # Emit signal
         self.filterApplied.emit()
@@ -284,46 +264,42 @@ class DateTimeFilter(QObject):
             )
             return False
         
-        # Start editing
-        if not photo_layer.isEditable():
-            photo_layer.startEditing()
+        # Ensure not in editing mode (we use direct provider batch write)
+        if photo_layer.isEditable():
+            photo_layer.rollBack()
         
-        # Set filterVisibility = True for all photos and restore icons
         backup_idx = photo_layer.fields().indexOf('svg_icon_backup')
-        fids_now_visible = []  # Track fids that become visible so we can deselect them
+        
+        # --- Collect all changes in memory first (no layer writes yet) ---
+        attr_changes = {}  # {fid: {field_idx: value, ...}}
+        fids_now_visible = []
+        
         for feature in photo_layer.getFeatures():
             fid = feature.id()
             manual_visible = feature['visible'] if visible_idx >= 0 else True
             current_icon = feature['svg_icon']
+            changes = {filter_visibility_idx: True}
             
-            # Set filterVisibility = True
-            photo_layer.changeAttributeValue(fid, filter_visibility_idx, True)
-            
-            # Restore icon only if manually visible
             if manual_visible:
                 fids_now_visible.append(fid)
                 if current_icon == 'Invisible.svg':
-                    # Determine the correct icon to restore to
                     restored = None
-                    # 1. Use original_icons (saved when filter was applied)
                     if fid in self.original_icons:
                         restored = self.original_icons[fid]
-                    # 2. Fall back to svg_icon_backup field (handles photos that were
-                    #    already invisible before the filter, then made visible during filter)
                     if not restored and backup_idx >= 0:
                         backup_val = feature.attribute('svg_icon_backup')
                         if backup_val and backup_val != 'Invisible.svg':
                             restored = backup_val
-                    # 3. Last resort
                     if not restored:
                         restored = '0.svg'
-                    photo_layer.changeAttributeValue(fid, svg_icon_idx, restored)
+                    changes[svg_icon_idx] = restored
+            
+            attr_changes[fid] = changes
         
         # Clear stored original icons
         self.original_icons.clear()
         
-        # Deselect features that are now visible so the selection handler
-        # doesn't re-hide them on the next selection change
+        # Deselect features that are now visible (single call)
         if fids_now_visible:
             current_selection = list(photo_layer.selectedFeatureIds())
             visible_set = set(fids_now_visible)
@@ -333,17 +309,13 @@ class DateTimeFilter(QObject):
                 photo_layer.selectByIds(new_selection)
                 photo_layer.blockSignals(False)
         
-        # Commit changes
-        photo_layer.commitChanges()
-        
         # Clear filter state
         self.filter_active = False
         self.start_datetime = None
         self.end_datetime = None
         
-        # Single refresh
-        photo_layer.triggerRepaint()
-        self.iface.mapCanvas().refresh()
+        # Batch-write all attribute changes to provider in one operation
+        photo_layer.dataProvider().changeAttributeValues(attr_changes)
         
         # Emit signal
         self.filterRemoved.emit()

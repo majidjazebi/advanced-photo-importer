@@ -1,9 +1,9 @@
 # Advanced Photo Importer
 
 > A powerful QGIS plugin for importing, managing, and visualizing geotagged photos with EXIF data.
-
+أخس 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-[![QGIS](https://img.shields.io/badge/QGIS-%3E%3D3.28-green.svg)](https://qgis.org)
+[![QGIS](https://img.shields.io/badge/QGIS-3.28%E2%80%934.x-green.svg)](https://qgis.org)
 [![Python](https://img.shields.io/badge/Python-3.x-blue.svg)](https://python.org)
 [![GitHub Issues](https://img.shields.io/github/issues/majidjazebi/advanced-photo-importer)](https://github.com/majidjazebi/advanced-photo-importer/issues)
 
@@ -14,6 +14,7 @@
 | **Repository** | [github.com/majidjazebi/advanced-photo-importer](https://github.com/majidjazebi/advanced-photo-importer) |
 | **License** | GNU GPL v3 |
 | **QGIS Minimum** | 3.28 |
+| **QGIS Maximum** | 4.99 (QGIS 4.x supported) |
 
 ---
 

@@ -4,7 +4,7 @@ All notable changes to **Advanced Photo Importer** will be documented in this fi
 
 ---
 
-## [1.0.0] - 2026-04-12 — Initial Public Release
+## [1.0.0] - 2026-04-17 — Initial Public Release
 
 ### Added
 - Import geotagged photos from a single file or an entire folder (with recursive subfolder support)
