@@ -1,4 +1,0 @@
-[bandit]
-# Only scan first-party plugin code.
-# Vendored dependencies under api_deps are third-party code and are tracked/upgraded upstream.
-exclude_dirs = api_deps
