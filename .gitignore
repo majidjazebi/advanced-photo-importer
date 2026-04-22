@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyc
+*$py.class
+
+# QGIS/Qt compiled files
+*.qm
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backup files
+*_backup.py
+*_old.py
+
+# Distribution / packaging
+*.zip
+dist/
+build/
+
+# Logs
+*.log

@@ -673,7 +673,7 @@ class AdvancedPhotoImporterDialog(QDialog):
         layout.addWidget(placeholder_label)
         
         return tab
-    
+
     def _create_about_tab(self):
         """Creates the 'About' tab with professional styling and information."""
         tab = QWidget()

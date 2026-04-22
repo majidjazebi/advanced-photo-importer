@@ -4,6 +4,25 @@ All notable changes to **Advanced Photo Importer** will be documented in this fi
 
 ---
 
+## [1.0.1] - 2026-04-22
+
+### Changed
+- Reworked import/export UX with a single integrated progress window (percentage + processed count) (Thanks @billjwilliamson).
+- Moved final completion messages into the same progress window (`Done` state), removing duplicate success popups.
+- Added live skipped-file tracking during folder import with copyable output in the progress window.
+- Improved imported photo list readability with aligned column headers (`Visibility`, `File Name`, `Label`) and corrected row alignment.
+- Added a styled destructive `Delete Selected Photo` action in the Imported Photos panel.
+
+### Security
+- Hardened XML parsing in bundled EXIF processing code by switching to `defusedxml` for safer XML parsing.
+- Removed flagged executable/script artifacts from the plugin package to reduce security scanner noise.
+- Reduced low-severity Bandit findings in first-party plugin code by replacing silent exception handling with explicit logging.
+
+### Fixed
+- Fixed file hyperlink generation for paths containing spaces in Excel export. (Thanks @billjwilliamson)
+- Fixed Qt6 compatibility issues for modal dialogs and frame line enums (`WindowModality`, `QFrame` shape constants).
+- Fixed repeated import-cancel flow where disconnecting an unconnected signal raised `TypeError`.
+
 ## [1.0.0] - 2026-04-17 — Initial Public Release
 
 ### Added

@@ -27,6 +27,7 @@ if EXCEL_AVAILABLE:
 from qgis.PyQt.QtWidgets import QMessageBox, QFileDialog, QWidget, QApplication
 from qgis.core import Qgis, QgsProject, QgsMessageLog, QgsCoordinateTransform, QgsCoordinateReferenceSystem
 from .qt_compat import MsgYes, MsgNo, DesktopLocation
+from .progress_status_dialog import ProgressStatusDialog
 
 
 
@@ -175,6 +176,8 @@ class ExcelManager:
             # Create Excel file with all photos from imported photos tab
             # WORKAROUND: Create minimal Excel template without using Workbook()
             # This avoids the XML library conflict causing access violations in QGIS
+            total_features = photo_layer.featureCount()
+
             import zipfile
             from io import BytesIO
             
@@ -203,8 +206,15 @@ class ExcelManager:
             # Get all photos from the photo layer (which represents imported photos)
             current_row = 2  # Data starts from row 2 (after headers)
             exported_count = 0
+            progress = ProgressStatusDialog(
+                "Excel Export Progress",
+                self.iface.mainWindow(),
+                skipped_title="Skipped / Not Exported Files"
+            )
+            progress.show()
+            QApplication.processEvents()
 
-            for feature in photo_layer.dataProvider().getFeatures():
+            for idx, feature in enumerate(photo_layer.dataProvider().getFeatures(), start=1):
                 feat_id = feature.id()
                 photo_path = feature.attribute('path')
                 photo_name = os.path.basename(photo_path) if photo_path else ""
@@ -226,6 +236,10 @@ class ExcelManager:
 
                 ws.cell(row=current_row, column=1, value=photo_name)
                 ws.cell(row=current_row, column=2, value=photo_path)
+                if photo_path:
+                    from urllib.parse import quote
+                    normalized = photo_path.replace("\\", "/")
+                    ws.cell(row=current_row, column=2).hyperlink = f"file:///{quote(normalized, safe='/:')}"
                 ws.cell(row=current_row, column=3, value=label_text)
                 ws.cell(row=current_row, column=4, value=x_coord)
                 ws.cell(row=current_row, column=5, value=y_coord)
@@ -236,6 +250,8 @@ class ExcelManager:
 
                 current_row += 1
                 exported_count += 1
+                progress.update_progress(idx, total_features, "Exporting Excel file...")
+                QApplication.processEvents()
 
             # Add data validation (dropdown) for Visibility column (column 8)
             dv_visibility = DataValidation(type="list", formula1='"Yes,No"', allow_blank=False)
@@ -319,9 +335,12 @@ class ExcelManager:
                         ws_settings.cell(row=settings_row, column=1, value="Icon Appearance")
                         ws_settings.cell(row=settings_row, column=2, value=icon_choice)
                         settings_row += 1
-                    except Exception:
-                        # Ignore if the combobox isn't present or data not set
-                        pass
+                    except Exception as e:
+                        QgsMessageLog.logMessage(
+                            f"[EXPORT] Could not export icon appearance: {e}",
+                            'Photo Plugin',
+                            Qgis.Warning
+                        )
                 
                 if hasattr(dlg, 'spinBox_tolerance'):
                     ws_settings.cell(row=settings_row, column=1, value="Click Tolerance")
@@ -401,22 +420,31 @@ class ExcelManager:
             if temp_path and os.path.exists(temp_path):
                 try:
                     os.remove(temp_path)
-                except:
-                    pass  # Ignore cleanup errors
+                except OSError as e:
+                    QgsMessageLog.logMessage(
+                        f"[EXPORT] Could not remove temp file {temp_path}: {e}",
+                        'Photo Plugin',
+                        Qgis.Warning
+                    )
 
-            QMessageBox.information(
-                self.iface.mainWindow(),
-                "Export Successful",
-                f"Successfully exported {exported_count} photos to:\n{save_path}"
+            progress.finish(
+                f"Done. Successfully exported {exported_count} photos to:\n{save_path}",
+                []
             )
 
         except Exception as e:
+            if 'progress' in locals():
+                progress.finish("Export failed.", [])
             # Clean up temp file on error too
             if 'temp_path' in locals() and temp_path and os.path.exists(temp_path):
                 try:
                     os.remove(temp_path)
-                except:
-                    pass
+                except OSError as cleanup_error:
+                    QgsMessageLog.logMessage(
+                        f"[EXPORT] Temp file cleanup after error failed: {cleanup_error}",
+                        'Photo Plugin',
+                        Qgis.Warning
+                    )
             
             QMessageBox.critical(
                 self.iface.mainWindow(),
@@ -637,12 +665,16 @@ class ExcelManager:
             imported_photos_data = []
             visibility_settings = []  # Store visibility settings to apply after commit
             features_to_select = []  # Features that should be selected (hidden)
+            total_rows = len(photos_data)
+            import_progress = ProgressStatusDialog("Excel Import Progress", self.iface.mainWindow())
+            import_progress.show()
+            QApplication.processEvents()
             
             # DEBUG: Track coordinate ranges
             min_lat, max_lat = None, None
             min_lon, max_lon = None, None
 
-            for photo_data in photos_data:
+            for idx, photo_data in enumerate(photos_data, start=1):
                 try:
                     lat = photo_data.get('latitude')
                     lon = photo_data.get('longitude')
@@ -684,6 +716,13 @@ class ExcelManager:
                                 'photo_time': photo_time
                             })
 
+                    import_progress.update_progress(
+                        idx,
+                        total_rows,
+                        f"Importing from Excel... Imported photos: {imported_count}",
+                    )
+                    QApplication.processEvents()
+
                 except Exception as e:
                     self.iface.messageBar().pushMessage(
                         "Import Warning",
@@ -691,6 +730,10 @@ class ExcelManager:
                         level=Qgis.Warning,
                         duration=5
                     )
+            import_progress.finish(
+                f"Done. Successfully imported {imported_count} photos from {os.path.basename(file_path)}",
+                []
+            )
 
             # DEBUG: Log coordinate ranges
             QgsMessageLog.logMessage(f"[DEBUG] Imported coordinates range:", 'Photo Plugin', Qgis.Info)
@@ -945,12 +988,10 @@ class ExcelManager:
                             # Try to find matching item by data()
                             matched_index = -1
                             for i in range(combo.count()):
-                                try:
-                                    if combo.itemData(i) == icon_choice:
-                                        matched_index = i
-                                        break
-                                except Exception:
-                                    continue
+                                item_data = combo.itemData(i)
+                                if item_data == icon_choice:
+                                    matched_index = i
+                                    break
                             if matched_index >= 0:
                                 combo.setCurrentIndex(matched_index)
                     except Exception:
@@ -964,8 +1005,12 @@ class ExcelManager:
                             # Fallback: attempt to update renderer directly
                             try:
                                 symbol_renderer.update_layer_symbol_manually(photo_layer, self.iface)
-                            except Exception:
-                                pass
+                            except Exception as renderer_error:
+                                QgsMessageLog.logMessage(
+                                    f"[EXCEL IMPORT] Fallback renderer update failed: {renderer_error}",
+                                    'Photo Plugin',
+                                    Qgis.Warning
+                                )
                     except Exception as e:
                         QgsMessageLog.logMessage(f"[EXCEL IMPORT] Error applying Icon Appearance: {e}", 'Photo Plugin', Qgis.Warning)
                 
@@ -1069,16 +1114,12 @@ class ExcelManager:
             else:
                 QgsMessageLog.logMessage("[EXCEL IMPORT] ERROR: Cannot call apply_all_settings - main_plugin not set!", 'Photo Plugin', Qgis.Critical)
 
-            QMessageBox.information(
-                self.iface.mainWindow(),
-                "Import Successful",
-                f"Successfully imported {imported_count} photos from {os.path.basename(file_path)}"
-            )
-            
             # Return the new photo layer, photo_list_manager, and click_tolerance
             return photo_layer, photo_list_manager, click_tolerance
 
         except Exception as e:
+            if 'import_progress' in locals():
+                import_progress.finish("Excel import failed.", [])
             import traceback
             error_trace = traceback.format_exc()
             QgsMessageLog.logMessage(f"[EXCEL IMPORT ERROR] {error_trace}", 'Photo Plugin', Qgis.Critical)

@@ -10,10 +10,9 @@ Handles the photo list widget, visibility toggling, and preview display.
 """
 
 import os
-import platform
-from qgis.PyQt.QtCore import Qt, pyqtSignal, QProcess, QTimer
-from qgis.PyQt.QtGui import QPixmap
-from .qt_compat import AlignCenter, Checked, LeftButton, KeepAspectRatio, SmoothTransformation, CustomContextMenu
+from qgis.PyQt.QtCore import Qt, pyqtSignal, QTimer, QUrl
+from qgis.PyQt.QtGui import QPixmap, QDesktopServices
+from .qt_compat import AlignCenter, Checked, LeftButton, KeepAspectRatio, SmoothTransformation, CustomContextMenu, MsgYes, MsgNo
 from qgis.PyQt.QtWidgets import (
     QWidget,
     QHBoxLayout,
@@ -50,41 +49,48 @@ class PhotoListItemWidget(QWidget):
         self.group_name = group_name
         self.label_text = label_text
 
+        # Column widths must match the header widths in PhotoListManager
+        visibility_col_width = 70
+        file_col_width = 250
+        label_col_width = 220
+
         self.layout = QHBoxLayout(self)
         self.layout.setContentsMargins(5, 1, 5, 1)
         self.layout.setSpacing(5)
 
-        # Checkbox for visibility
+        # Column 1: visibility (centered checkbox)
+        visibility_cell = QWidget()
+        visibility_cell.setFixedWidth(visibility_col_width)
+        visibility_layout = QHBoxLayout(visibility_cell)
+        visibility_layout.setContentsMargins(0, 0, 0, 0)
+        visibility_layout.setSpacing(0)
+        visibility_layout.addStretch(1)
         self.checkbox = QCheckBox()
         self.checkbox.setChecked(initial_visible)
         self.checkbox.stateChanged.connect(self._on_visibility_change)
+        visibility_layout.addWidget(self.checkbox)
+        visibility_layout.addStretch(1)
         
-        # Label for file name
+        # Column 2: file name
         self.label = QLabel(self.base_name)
         self.label.setToolTip(self.photo_path)
-        
-        # Label for group name (if available)
+        self.label.setFixedWidth(file_col_width)
+        self.label.setWordWrap(False)
+        self.label.setStyleSheet("color: #1f2d3d;")
+
+        # Column 3: label text (+ group tag if present)
+        label_value = label_text if label_text else ""
         if group_name:
-            self.group_label = QLabel(f"[{group_name}]")
-            self.group_label.setStyleSheet("color: #0066cc; font-style: italic; font-size: 9pt;")
-            self.group_label.setToolTip(f"Group: {group_name}")
-        else:
-            self.group_label = None
-        
-        # Label text display
-        if label_text:
-            self.label_text_label = QLabel(f" | {label_text}")
-            self.label_text_label.setStyleSheet("color: #666666; font-size: 9pt;")
-            self.label_text_label.setToolTip(f"Label: {label_text}")
-        else:
-            self.label_text_label = None
-        
-        self.layout.addWidget(self.checkbox)
+            label_value = f"[{group_name}] {label_value}".strip()
+        self.label_text_label = QLabel(label_value)
+        self.label_text_label.setFixedWidth(label_col_width)
+        self.label_text_label.setWordWrap(False)
+        self.label_text_label.setStyleSheet("color: #666666; font-size: 9pt;")
+        self.label_text_label.setToolTip(label_value if label_value else "No label")
+
+        self.layout.addWidget(visibility_cell)
         self.layout.addWidget(self.label)
-        if self.group_label:
-            self.layout.addWidget(self.group_label)
-        if self.label_text_label:
-            self.layout.addWidget(self.label_text_label)
+        self.layout.addWidget(self.label_text_label)
         self.layout.addStretch()
         
     def _on_visibility_change(self, state):
@@ -174,17 +180,83 @@ class PhotoListManager(QWidget):
         self.update_button.setToolTip("Update the selected photo's coordinates and direction.")
         self.update_button.clicked.connect(self._on_update_metadata_click)
         self.update_button.setEnabled(False)  # Start disabled until a photo is selected
+
+        # Delete button (styled as destructive action)
+        self.delete_button = QPushButton("Delete Selected Photo")
+        self.delete_button.setToolTip("Delete the currently selected photo from the layer.")
+        self.delete_button.setEnabled(False)  # Start disabled until a photo is selected
+        self.delete_button.setStyleSheet(
+            "QPushButton {"
+            "  background-color: #fff5f5;"
+            "  color: #8b1d1d;"
+            "  border: 1px solid #d9534f;"
+            "  border-radius: 5px;"
+            "  padding: 6px 10px;"
+            "  font-weight: bold;"
+            "}"
+            "QPushButton:hover {"
+            "  background-color: #ffe9e9;"
+            "  border: 1px solid #c9302c;"
+            "}"
+            "QPushButton:pressed {"
+            "  background-color: #ffdede;"
+            "}"
+            "QPushButton:disabled {"
+            "  color: #b8a0a0;"
+            "  border: 1px solid #e4caca;"
+            "  background-color: #fffafa;"
+            "}"
+        )
+        self.delete_button.clicked.connect(self._on_delete_photo_click)
         
         # Layout for the new tab content (List on left, Preview/Button on right)
+        # Left side: column headers + list
+        left_side_layout = QVBoxLayout()
+        left_side_layout.setSpacing(4)
+
+        self.list_header_widget = QWidget()
+        header_layout = QHBoxLayout(self.list_header_widget)
+        header_layout.setContentsMargins(8, 4, 8, 4)
+        header_layout.setSpacing(5)
+
+        header_visibility = QLabel("Visibility")
+        header_visibility.setFixedWidth(70)
+        header_visibility.setAlignment(AlignCenter)
+        header_visibility.setStyleSheet("font-weight: bold; color: #2d3e50;")
+
+        header_file = QLabel("File Name")
+        header_file.setFixedWidth(250)
+        header_file.setStyleSheet("font-weight: bold; color: #2d3e50;")
+
+        header_label = QLabel("Label")
+        header_label.setFixedWidth(220)
+        header_label.setStyleSheet("font-weight: bold; color: #2d3e50;")
+
+        header_layout.addWidget(header_visibility)
+        header_layout.addWidget(header_file)
+        header_layout.addWidget(header_label)
+        header_layout.addStretch()
+
+        self.list_header_widget.setStyleSheet(
+            "background-color: #eef3f8;"
+            "border: 1px solid #d4dee8;"
+            "border-radius: 5px;"
+        )
+
+        left_side_layout.addWidget(self.list_header_widget)
+        left_side_layout.addWidget(self.list_widget)
+
+        # Right side: preview + metadata actions
         right_side_layout = QVBoxLayout()
         right_side_layout.addWidget(self.image_preview)
         right_side_layout.addWidget(self.hq_button)
         right_side_layout.addWidget(self.coord_group)
         right_side_layout.addWidget(self.update_button)
         right_side_layout.addStretch()
+        right_side_layout.addWidget(self.delete_button)
 
         main_layout = QHBoxLayout(self)
-        main_layout.addWidget(self.list_widget, 2) 
+        main_layout.addLayout(left_side_layout, 2)
         main_layout.addLayout(right_side_layout, 1) 
         
         self.list_widget.setContextMenuPolicy(CustomContextMenu)
@@ -282,13 +354,10 @@ class PhotoListManager(QWidget):
             return
 
         try:
-            # Platform-independent method to open file
-            if platform.system() == "Windows":
-                os.startfile(self.current_photo_path)
-            elif platform.system() == "Darwin":  # macOS
-                QProcess.startDetached('open', [self.current_photo_path])
-            else:  # Linux/others
-                QProcess.startDetached('xdg-open', [self.current_photo_path])
+            file_url = QUrl.fromLocalFile(self.current_photo_path)
+            opened = QDesktopServices.openUrl(file_url)
+            if not opened:
+                raise RuntimeError("System viewer could not open the file URL")
             
         except Exception as e:
             QMessageBox.critical(self.parent(), "Error", f"Could not open file in default viewer: {e}")
@@ -310,6 +379,7 @@ class PhotoListManager(QWidget):
         
         # Enable/disable update button based on whether we found a feature
         self.update_button.setEnabled(self.current_feature_id is not None)
+        self.delete_button.setEnabled(self.current_feature_id is not None)
         
         try:
             pixmap = QPixmap(photo_path)
@@ -329,6 +399,61 @@ class PhotoListManager(QWidget):
         except Exception as e:
             self.image_preview.setText(f"Error displaying image: {e}")
             self.hq_button.setEnabled(False)
+
+    def _on_delete_photo_click(self):
+        """Delete the currently selected feature from the photo layer."""
+        if self.current_feature_id is None:
+            QMessageBox.warning(self, "No Selection", "Please select a photo first.")
+            return
+
+        if not self.layer or not self.layer.isValid():
+            QMessageBox.warning(self, "Layer Error", "No valid photo layer is loaded.")
+            return
+
+        reply = QMessageBox.question(
+            self,
+            "Delete Photo",
+            "Are you sure you want to delete this photo from the imported layer?",
+            MsgYes | MsgNo,
+            MsgNo
+        )
+        if reply != MsgYes:
+            return
+
+        if not self.layer.isEditable():
+            self.layer.startEditing()
+
+        deleted = self.layer.deleteFeature(self.current_feature_id)
+        if not deleted:
+            QMessageBox.critical(self, "Delete Failed", "Could not delete the selected photo.")
+            if self.layer.isEditable():
+                self.layer.rollBack()
+            return
+
+        if self.layer.isEditable():
+            self.layer.commitChanges()
+
+        self.current_feature_id = None
+        self.current_photo_path = None
+        self.image_preview.clear()
+        self.image_preview.setText("Select a photo to see a preview.")
+        self.hq_button.setEnabled(False)
+        self.update_button.setEnabled(False)
+        self.delete_button.setEnabled(False)
+        self.lon_edit.clear()
+        self.lat_edit.clear()
+        self.direction_edit.clear()
+        self.photo_time_edit.clear()
+        self.label_text_edit.clear()
+
+        self.populate_list()
+        self.iface.mapCanvas().refresh()
+        self.iface.messageBar().pushMessage(
+            "Photo Deleted",
+            "Selected photo was deleted successfully.",
+            level=Qgis.Success,
+            duration=3
+        )
 
     def toggle_feature_visibility(self, feature_id, is_visible):
         """

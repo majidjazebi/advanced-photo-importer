@@ -1,7 +1,6 @@
 # Advanced Photo Importer
 
 > A powerful QGIS plugin for importing, managing, and visualizing geotagged photos with EXIF data.
-أخس 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![QGIS](https://img.shields.io/badge/QGIS-3.28%E2%80%934.x-green.svg)](https://qgis.org)
 [![Python](https://img.shields.io/badge/Python-3.x-blue.svg)](https://python.org)
@@ -15,6 +14,18 @@
 | **License** | GNU GPL v3 |
 | **QGIS Minimum** | 3.28 |
 | **QGIS Maximum** | 4.99 (QGIS 4.x supported) |
+| **Current Version** | 1.0.1 |
+
+---
+
+## What's New in 1.0.1
+
+- Import and Excel operations now use a unified progress window with percentage + processed count.
+- Completion messages are integrated into the same progress window (`Done` state), without separate success popups.
+- Skipped/not-imported files are listed live in a copyable panel during import.
+- Imported Photos panel now has aligned headers and a styled `Delete Selected Photo` action.
+- File hyperlinks exported to Excel now handle paths with spaces correctly.
+- Qt 6 compatibility fixes were added for dialog modality and enum handling in QGIS 4.
 
 ---
 

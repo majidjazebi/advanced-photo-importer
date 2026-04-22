@@ -8,7 +8,7 @@ name=Advanced Photo Importer
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Import, manage and visualize geotagged photos with EXIF data in QGIS
-version=1.0.0
+version=1.0.1
 author=Dr. Majid Jazebi
 email=majidjazebi@gmail.com
 folder=advanced_photo_importer
@@ -41,6 +41,13 @@ homepage=https://geotechzone.com/qgis/advanced-photo-importer
 
 hasProcessingProvider=no
 changelog=
+    1.0.1 - UX and stability improvements
+    - Unified progress window for folder import and Excel import/export (percentage + processed count) 
+    - Completion messages integrated in the same progress window; live skipped file list is copyable
+    - Imported Photos panel improvements: aligned column headers and a styled Delete Selected Photo button
+    - Excel hyperlink export now supports file paths with spaces 
+    - Qt6/QGIS4 compatibility fixes for dialog modality, frame enums, and signal disconnect edge cases
+    - Security hardening updates in bundled parsing code and package cleanup
     1.0.0 - Initial public release (QGIS 3.28+ and QGIS 4 compatible)
 
 # Tags are comma separated with spaces allowed

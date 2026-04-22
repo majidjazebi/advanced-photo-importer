@@ -54,7 +54,6 @@ class LayerManager:
         Creates the in-memory point layer or opens an existing layer if output_uri is provided.
         Returns the QgsVectorLayer instance.
         """
-        
         # Check if photo_layer is still valid (avoid RuntimeError with deleted C++ objects)
         layer_is_valid = False
         if photo_layer is not None:

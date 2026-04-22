@@ -8,8 +8,14 @@ Website:  https://geotechzone.com/qgis/advanced-photo-importer
 GitHub:   https://github.com/majidjazebi/advanced-photo-importer
 License:  GNU GPL v3
 QGIS:     >= 3.28
+Version:  1.0.1
 
 For full documentation see README.md or the project website.
+
+Highlights in 1.0.1:
+- Unified progress window for import/export with integrated Done status
+- Live, copyable skipped-file list during import
+- Improved Imported Photos UI alignment and delete action
 
 ---
 

@@ -50,6 +50,9 @@ LeftButton = _resolve(Qt, "MouseButton.LeftButton", "LeftButton")
 # ── Qt.ContextMenuPolicy ────────────────────────────────────────────────────
 CustomContextMenu = _resolve(Qt, "ContextMenuPolicy.CustomContextMenu", "CustomContextMenu")
 
+# ── Qt.WindowModality ───────────────────────────────────────────────────────
+WindowModal = _resolve(Qt, "WindowModality.WindowModal", "WindowModal")
+
 # ── QFrame.Shape / QFrame.Shadow ─────────────────────────────────────────────
 HLine = _resolve(QFrame, "Shape.HLine", "HLine")
 Sunken = _resolve(QFrame, "Shadow.Sunken", "Sunken")

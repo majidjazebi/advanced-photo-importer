@@ -246,9 +246,13 @@ class AdvancedPhotoImporter:
                 except (RuntimeError, TypeError, AttributeError):
                     # Layer object has already been deleted or is invalid
                     pass
-        except Exception:
-            # Catch any other unexpected errors
-            pass
+        except Exception as e:
+            # Catch any other unexpected errors and keep plugin responsive
+            QgsMessageLog.logMessage(
+                f"[LAYER] Unexpected error in _on_layer_removed: {e}",
+                'Photo Plugin',
+                Qgis.Warning
+            )
     
     def _sync_label_settings_from_layer(self):
         """Sync label settings from layer properties to plugin dialog."""
@@ -530,8 +534,12 @@ class AdvancedPhotoImporter:
             try:
                 show_direction = self.dlg.checkBox_show_direction.isChecked()
                 self.symbol_renderer.set_include_direction(show_direction)
-            except Exception:
-                pass
+            except Exception as e:
+                QgsMessageLog.logMessage(
+                    f"[SETTINGS] Failed to apply show direction setting: {e}",
+                    'Photo Plugin',
+                    Qgis.Warning
+                )
         
         # Apply icon size
         if hasattr(self.dlg, 'spinBox_icon_size'):
@@ -970,8 +978,12 @@ class AdvancedPhotoImporter:
             try:
                 # Disconnect first to avoid duplicate connections
                 self.photo_layer.styleChanged.disconnect(self._sync_label_settings_from_layer)
-            except:
-                pass
+            except (TypeError, RuntimeError, AttributeError):
+                QgsMessageLog.logMessage(
+                    "[CREATE LAYER] styleChanged disconnect skipped (not connected or layer invalid)",
+                    'Photo Plugin',
+                    Qgis.Info
+                )
             self.photo_layer.styleChanged.connect(self._sync_label_settings_from_layer)
         
         return self.photo_layer
@@ -1105,7 +1117,7 @@ class AdvancedPhotoImporter:
             if self.photo_layer and self.photo_layer.isValid():
                 self.photo_layer.styleChanged.disconnect(self._sync_label_settings_from_layer)
                 QgsMessageLog.logMessage("[IMPORT] Disconnected styleChanged from old layer", 'Photo Plugin', Qgis.Info)
-        except (RuntimeError, AttributeError):
+        except (RuntimeError, AttributeError, TypeError):
             # Layer has been deleted or never existed
             QgsMessageLog.logMessage("[IMPORT] Old layer already deleted or doesn't exist", 'Photo Plugin', Qgis.Info)
             pass
@@ -1407,8 +1419,12 @@ class AdvancedPhotoImporter:
         try:
             self.photo_layer.styleChanged.connect(self._sync_label_settings_from_layer)
             QgsMessageLog.logMessage("[LABEL STYLE] Reconnected styleChanged signal", 'Photo Plugin', Qgis.Info)
-        except:
-            pass
+        except (TypeError, RuntimeError, AttributeError) as e:
+            QgsMessageLog.logMessage(
+                f"[LABEL STYLE] Could not reconnect styleChanged: {e}",
+                'Photo Plugin',
+                Qgis.Warning
+            )
         
         # Check dialog values AFTER reconnecting signal
         QgsMessageLog.logMessage("[LABEL STYLE] Dialog values AFTER reconnecting signal:", 'Photo Plugin', Qgis.Info)
